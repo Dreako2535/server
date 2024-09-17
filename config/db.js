@@ -1,10 +1,11 @@
 const mysql = require('mysql');
+require('dotenv').config();
 
 const db = mysql.createConnection({
-    host: 'guitarexplain.c1gaiw8a2gl5.us-east-2.rds.amazonaws.com',
-    user: 'admin',
-    password: 'Colombia2022.',
-    database: 'cuestionario1'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 });
 
 db.connect((err) => {
