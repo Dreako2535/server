@@ -1,7 +1,7 @@
 const db = require('../config/db');
 const transporter = require('../config/mailer');
 const crypto = require('crypto');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs'); // Cambiado a bcryptjs
 
 // Registro de usuario
 exports.registro = async (req, res) => {
@@ -24,23 +24,19 @@ exports.registro = async (req, res) => {
     }
 
     try {
-        const hashedPassword = await bcrypt.hash(Contraseña, 10);
+        const hashedPassword = await bcrypt.hash(Contraseña, 10); // Uso de bcryptjs para hashear
 
-        // Verificar que la conexión a la base de datos esté definida
         if (!db) {
             console.error('Database connection is not defined');
             return res.status(500).json({ message: 'Error en la conexión a la base de datos' });
         }
 
-        // Registrar el nuevo usuario
         const sql = 'INSERT INTO registro (Usuario, Correo, Contraseña) VALUES (?, ?, ?)';
         db.query(sql, [Usuario, Correo, hashedPassword], (err) => {
             if (err) {
                 if (err.code === 'ER_DUP_ENTRY') {
-                    // Manejar el error de correo duplicado
                     return res.status(400).json({ message: 'El correo electrónico ya está registrado.' });
                 } else {
-                    // Manejar otros errores
                     console.error('Error inserting into database:', err);
                     return res.status(500).json({ message: 'Error al registrar el usuario' });
                 }
@@ -61,7 +57,6 @@ exports.iniciarSesion = (req, res) => {
         return res.status(400).json({ message: 'Por favor, complete ambos campos.' });
     }
 
-    // Verificar que la conexión a la base de datos esté definida
     if (!db) {
         console.error('Database connection is not defined');
         return res.status(500).json({ message: 'Error en la conexión a la base de datos' });
@@ -79,7 +74,7 @@ exports.iniciarSesion = (req, res) => {
         }
 
         const user = results[0];
-        const passwordMatch = await bcrypt.compare(Contraseña, user.Contraseña);
+        const passwordMatch = await bcrypt.compare(Contraseña, user.Contraseña); // Uso de bcryptjs para comparar
 
         if (passwordMatch) {
             if (user.Id_usuario) {
@@ -104,7 +99,6 @@ exports.resetPasswordRequest = (req, res) => {
     const token = crypto.randomBytes(20).toString('hex');
     const expiry = new Date(Date.now() + 3600000); // 1 hora
 
-    // Verificar que la conexión a la base de datos esté definida
     if (!db) {
         console.error('Database connection is not defined');
         return res.status(500).json({ message: 'Error en la conexión a la base de datos' });
@@ -144,7 +138,6 @@ exports.resetPasswordRequest = (req, res) => {
 exports.verifyToken = (req, res) => {
     const { token } = req.params;
 
-    // Verificar que la conexión a la base de datos esté definida
     if (!db) {
         console.error('Database connection is not defined');
         return res.status(500).json({ message: 'Error en la conexión a la base de datos' });
@@ -170,9 +163,8 @@ exports.resetPassword = async (req, res) => {
         return res.status(400).json({ message: 'Por favor, ingrese una nueva contraseña.' });
     }
 
-    const hashedPassword = await bcrypt.hash(nuevaContraseña, 10);
+    const hashedPassword = await bcrypt.hash(nuevaContraseña, 10); // Uso de bcryptjs para hashear
 
-    // Verificar que la conexión a la base de datos esté definida
     if (!db) {
         console.error('Database connection is not defined');
         return res.status(500).json({ message: 'Error en la conexión a la base de datos' });
