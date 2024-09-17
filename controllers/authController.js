@@ -115,7 +115,7 @@ exports.resetPasswordRequest = (req, res) => {
             return res.status(404).json({ message: 'Correo no encontrado.' });
         }
 
-        const resetUrl = `http://localhost:5001/resetPassword/${token}`;
+        const resetUrl = `https://server-production-29c4.up.railway.app/resetPassword/${token}`;
 
         const mailOptions = {
             to: email,
